@@ -1,31 +1,25 @@
-# Stage 1
-FROM node:21 AS backend-builder
+#stage 1
+FROM node:20 AS backend
 
-# setup the working dir
 WORKDIR /app
 
-# code
+COPY package.*json ./
+
+RUN npm install --development  && \
+    npm cache clean --force && \
+    rm -rf /tmp/*
+
 COPY . .
 
-# packages install
-RUN npm i
+#stage 2
 
-# tests
-RUN npm run test
+FROM node:20-slim
 
-# Stage 2
-FROM node:21-slim
-
-# setup the working dir
 WORKDIR /app
 
-# copy the above stage as compressed
-COPY --from=backend-builder /app .
-
+COPY --from=backend /app ./
 COPY .env.docker .env
 
-# Port
 EXPOSE 8080
 
-# App
-CMD ["npm", "start"]
+CMD ["npm","start"]

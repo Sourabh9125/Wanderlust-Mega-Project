@@ -22,10 +22,10 @@ spec:
           ports:
             - containerPort: 6379
           volumeMounts:
-            - name: mongo-storage
+            - name: mongo-data
               mountPath: /var/lib/redis/dump.rdb
       volumes:
-        - name: mongo-storage
+        - name: mongo-data
           persistentVolumeClaim:
             claimName: mongo-pvc
 ---

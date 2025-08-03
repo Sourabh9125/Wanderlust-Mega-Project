@@ -1,39 +1,79 @@
-version: "3.8"
+
 services:
   mongodb:
-    container_name: mongo-service
     image: mongo:latest
-    volumes:
-      - ./backend/data:/data
+    container_name: mongodb
     ports:
       - "27017:27017"
-
-  backend:
-    container_name: backend
-    build: ./backend
-    env_file:
-      - ./backend/.env.docker
-    ports:
-      - "31100:8080"
-    depends_on:
-      - mongodb
+    networks:
+      - wander-app
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet 
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   frontend:
+    build:
+      context: ./frontend/
     container_name: frontend
-    build: ./frontend
-    env_file:
-      - ./frontend/.env.docker
     ports:
       - "5173:5173"
-
-  redis:
-    container_name: redis-service
-    restart: unless-stopped
-    image: redis:7.0.5-alpine 
-    expose:
-        - 6379
+    env_file:
+      - ./frontend/.env.docker
     depends_on:
-      - mongodb
+      - backend
+    networks:
+      - wander-app
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f https://localhost:5173/health.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  backend:
+    build:
+      context: ./backend/
+    container_name: backend
+    ports:
+      - "31100:8080"
+    env_file:
+      - ./backend/.env.docker
+    environment:
+      - REDIS_HOST=redis-service
+    depends_on:
+      - redis-service
+    networks:
+      - wander-app
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  redis-service:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - wander-app
+    volumes:
+      - redis_data:/data
+    
 
 volumes:
-  data:
+  mongo_data:
+    name: mongo_data
+  redis_data:
+    name: redis_data
+networks:
+  wander-app:
+    name: wander-app
