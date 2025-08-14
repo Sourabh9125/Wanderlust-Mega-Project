@@ -1,14 +1,27 @@
-variable "aws_region" {
-  description = "AWS region where resources will be provisioned"
-  default     = "us-east-2"
+variable "subscription_id" {
+  description = "Azure Subscription ID"
+  type        = string
+  default     = null  # Will use Azure CLI context if not provided
 }
 
-variable "ami_id" {
-  description = "AMI ID for the EC2 instance"
-  default     = "ami-085f9c64a9b75eed5"
+variable "tenant_id" {
+  description = "Azure Tenant ID"
+  type        = string
+  default     = null  # Will use Azure CLI context if not provided
 }
-
-variable "instance_type" {
-  description = "Instance type for the EC2 instance"
-  default     = "t2.large"
+variable "client_secret" {
+  description = "Azure Client Secret"
+  type        = string
+  default     = null  # Will use Azure CLI context if not provided
+}
+variable "client_id" {
+  description = "Azure Client ID"
+  type        = string
+  default     = null  # Will use Azure CLI context if not provided
+}
+variable "env" {
+  description = "Environment for the resources (e.g., dev, prod)"
+  type        = string
+  default     = "dev"
+  
 }
