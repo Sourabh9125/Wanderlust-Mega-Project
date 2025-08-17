@@ -1,0 +1,122 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- production
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'dockerhub-connection'
+  frontendImage: 'wanderlust-frontend'
+  backendImage: 'wanderlust-backend'
+  frontendDockerfilePath: '$(Build.SourcesDirectory)/frontend/Dockerfile'
+  backendDockerfilePath: '$(Build.SourcesDirectory)/backend/Dockerfile'
+  tag: '$(Build.BuildId)'
+  manifestsPath: 'kubernetes'
+  ACR_Name: 'wanderlust.azurecr.io'
+
+  # Agent VM image name
+  # vmImageName: 'dev-wanderlust-vm'
+
+stages:
+- stage: RunAutomationScript
+  displayName: Run Automation Script
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      name: Default
+      demands:
+        - agent.name -equals dev-wanderlust-vm
+    steps:
+    - script: |
+        bash Automations/updatebackendnew.sh $(Build.SourcesDirectory)/backend/.env.docker
+        bash Automations/updatefrontendnew.sh $(Build.SourcesDirectory)/frontend/.env.docker
+      displayName: 'Update backend and frontend .env files'
+        
+  
+- stage: Build
+  displayName: Build and push stage Backend image to ACR
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      name: Default
+      demands:
+        - agent.name -equals dev-wanderlust-vm
+    steps:
+    - task: Docker@2 
+      inputs:
+        command: 'login'
+        containerRegistry: (dockerRegistryServiceConnection) 
+
+    - task: Docker@2
+      displayName: Build and push Frontend image to ACR
+      inputs:
+        command: buildAndPush
+        repository: $(dockerHubUser)/$(frontendImage)
+        dockerfile: $(frontendDockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(dockerHubUser)/$(backendImage)
+        dockerfile: $(backendDockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+- stage: UpdateK8s
+  displayName: Update Kubernetes 
+  dependsOn: Build
+  jobs:
+  - job: UpdateManifests
+    pool:
+      name: Default
+      demands:
+        - agent.name -equals dev-wanderlust-vm
+    steps:
+    - checkout: self
+
+    # - script: |
+    #     sed -i -E "s|image:.*wanderlust-backend.*|image: ${ACR_Name}/wanderlust-backend:$(Build.BuildId)" kubernetes/backend.yml
+    #     sed -i -E "s|image:.*wanderlust-frontend.*|image: ${ACR_Name}/wanderlust-frontend:$(Build.BuildId)|" kubernetes/frontend.yml
+    #   displayName: Update image tags in manifests
+
+    - script: |
+        git config user.email "lodhisaurabh9125@gmail.com"
+        git config user.name "Sourabh9125"
+        git remote set-url origin https://Sourabh9125:$(gitHubCred)@github.com/Sourabh9125/Wanderlust-Mega-Project.git
+        git fetch origin production
+        git checkout production
+        git pull origin production
+        # sed -i "s|image: .*/sourabhlodhi/backend-wander.*|image: ${containerRegistry}/wanderlust-backend:${Build.BuildId}|g" ${manifestsPath}/backend.yml
+        # sed -i "s|image: .*/sourabhlodhi/frontend-wander.*|image: ${containerRegistry}/wanderlust-frontend:${Build.BuildId}|g" ${manifestsPath}/frontend.yml
+
+        sed -i "s|image:.*wanderlust.azurecr.io/wanderlust-backend.*|image: wanderlust.azurecr.io/wanderlust-backend:$(Build.BuildId)|g" kubernetes/backend.yml
+        sed -i "s|image:.*wanderlust.azurecr.io/wanderlust-frontend.*|image: wanderlust.azurecr.io/wanderlust-frontend:$(Build.BuildId)|g" kubernetes/frontend.yml
+
+        if [ -f kubernetes/ingress.yml ]; then
+                sed -i "s|^\s*host: .*|host: wanderlust.deployit.shop|g" kubernetes/ingress.yml
+            fi
+
+        git add kubernetes/*.yml
+
+        if git diff --cached --quiet; then
+           echo "No changes to commit."
+           exit 0
+        fi
+        
+        git commit -m "Update K8s manifests with new image tags"
+        git push origin production
+      displayName: Commit updated manifests to GitHub
+
+
