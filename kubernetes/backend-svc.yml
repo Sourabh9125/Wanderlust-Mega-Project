@@ -3,10 +3,8 @@ apiVersion: v1
 metadata:
   name: backend-svc
   namespace: wanderlust
-  annotations:
-    service.beta.kubernetes.io/azure-load-balancer-resource-group: "aks-wanderlust-nodes"
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: backend
   ports:
