@@ -4,6 +4,7 @@ metadata:
   name: backend-svc
   namespace: wanderlust
 spec:
+  type: LoadBalancer
   selector:
     app: backend
   ports:
