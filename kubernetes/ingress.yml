@@ -7,9 +7,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header Host localhost;
-
 spec:
   tls:
   - hosts:
