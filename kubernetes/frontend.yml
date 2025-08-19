@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: sourabhlodhi/wanderlust-frontend:98
+        image: sourabhlodhi/wanderlust-frontend:99
         ports:
         - containerPort: 5173
         resources:
