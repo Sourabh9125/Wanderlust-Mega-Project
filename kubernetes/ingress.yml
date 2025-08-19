@@ -30,5 +30,11 @@ spec:
             name: backend-svc
             port:
               number: 8080
-              
+      - path: /argocd
+        pathType: Prefix
+        backend: 
+          service:
+            name: argocd-server
+            port:
+              number: 32646       
       
