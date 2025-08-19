@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: sourabhlodhi/wanderlust-backend:107
+        image: sourabhlodhi/wanderlust-backend:108
         ports:
         - containerPort: 8080
         resources:
