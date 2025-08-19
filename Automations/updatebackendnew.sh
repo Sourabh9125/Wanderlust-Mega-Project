@@ -1,26 +1,35 @@
 #!/bin/bash
 set -e
 
-# ===== Azure Config =====
-RESOURCE_GROUP="dev-wanderlust-resources"
-PUBLIC_IP_NAME="aks-wanderlust-public-ip"  # This is the Azure Public IP resource name
+# RESOURCE_GROUP="dev-wanderlust-resources"
+# PUBLIC_IP_NAME="dev-wanderlust-pip"  # This is the Azure Public IP resource name
+RESOURCE_GROUP="aks-wanderlust-nodes"
+PUBLIC_IP_NAME="aks-wanderlust-public-ip"
 
 # Path to the .env file
-file_to_find="../backend/.env.docker"
+file_to_find="$BUILD_SOURCESDIRECTORY/backend/.env.docker"
 
-# ===== Fetch Public IP from Azure =====
+
 ipv4_address=$(az network public-ip show \
     --resource-group $RESOURCE_GROUP \
     --name $PUBLIC_IP_NAME \
     --query 'ipAddress' \
-    --output tsv)
+    --output tsv) 
+
+
+# ipv4_address=$(az network public-ip show \
+#     --resource-group $RESOURCE_GROUP \
+#     --name $PUBLIC_IP_NAME \
+#     --query 'ipAddress' \
+#     --output tsv)
+
 
 if [[ -z "$ipv4_address" ]]; then
     echo " ERROR: Could not fetch public IP from Azure."
     exit 1
 fi
 
-# ===== Check and Update FRONTEND_URL =====
+
 current_url=$(sed -n "4p" "$file_to_find")
 
 if [[ "$current_url" != "FRONTEND_URL=\"http://${ipv4_address}:5173\"" ]]; then
