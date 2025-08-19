@@ -10,10 +10,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - wanderlust.letsdeployit.shop
+    - wanderlust.deployit.shop
     secretName: wanderlust-tls-secret
   rules:
-  - host: wanderlust.letsdeployit.shop
+  - host: wanderlust.deployit.shop
     http:
       paths:
       - path: /
