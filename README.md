@@ -280,7 +280,7 @@ kubectl get ingress -n wanderlust
 kubectl port-forward svc/frontend-svc 5173:5173 -n wanderlust
 kubectl port-forward svc/backend-svc 8080:8080 -n wanderlust
 ```
-![Wanderlust Screenshot](Assets/argocd.png)
+![Screenshot](Assets/argocd.png)
 
 
 ## 🔧 Troubleshooting
