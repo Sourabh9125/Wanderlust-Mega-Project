@@ -189,7 +189,7 @@ helm install nginx-ingress ingress-nginx/ingress-nginx \
 # Check ingress services
 kubectl get svc -n ingress-nginx
 ```
-
+![Screenshot](Assets/argocd.png)
 ### 9. Configure Load Balancer IP (if needed)
 
 ```bash
@@ -249,6 +249,7 @@ echo "Updating backend image tag..."
 sed -i "s|image: sourabhlodhi/wanderlust-backend:.*|image: sourabhlodhi/wanderlust-backend:$BUILD_ID|g" kubernetes/backend.yml
 kubectl apply -f kubernetes/backend.yml
 ```
+![Wanderlust Screenshot](Assets/)
 
 ## 📊 Monitoring and Verification
 
@@ -280,7 +281,7 @@ kubectl get ingress -n wanderlust
 kubectl port-forward svc/frontend-svc 5173:5173 -n wanderlust
 kubectl port-forward svc/backend-svc 8080:8080 -n wanderlust
 ```
-![Screenshot](Assets/argocd .png)
+
 
 
 ## 🔧 Troubleshooting
