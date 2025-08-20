@@ -1,7 +1,5 @@
 # Wanderlust - Your Ultimate Travel Blog 🌍✈️
 
-WanderLust is a simple MERN travel blog website ✈ This project is aimed to help people to contribute in open source, upskill in react and also master git.
-
 ![Wanderlust Screenshot](Assets/Screenshot%202025-08-20%20at%204.48.11%20PM.png)
 #
 
@@ -15,7 +13,7 @@ WanderLust is a simple MERN travel blog website ✈ This project is aimed to hel
 - Azure Pipeline (CI)
 - ArgoCD (CD)
 - Redis (Caching)
-- AZURE EKS (Kubernetes)
+- AZURE AKS (Kubernetes)
 - Helm (Monitoring using grafana and prometheus)
 
 ## A comprehensive DevOps project demonstrating Azure Kubernetes Service (AKS) deployment with Terraform, Azure DevOps CI/CD pipeline, and ArgoCD GitOps implementation.
