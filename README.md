@@ -249,7 +249,7 @@ echo "Updating backend image tag..."
 sed -i "s|image: sourabhlodhi/wanderlust-backend:.*|image: sourabhlodhi/wanderlust-backend:$BUILD_ID|g" kubernetes/backend.yml
 kubectl apply -f kubernetes/backend.yml
 ```
-![Wanderlust Screenshot](Assets/)
+![Screenshot](Assets/pipeline.png)
 
 ## 📊 Monitoring and Verification
 
